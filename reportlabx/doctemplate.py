@@ -8,7 +8,7 @@ from reportlabx.styles import StyleSheet
 class BaseDocTemplate(BaseDocTemplate):
     """Base template for all reports with additional features."""
 
-    def __init__(self, filename, style: StyleSheet, **kw) -> None:
+    def __init__(self, filename, style: StyleSheet, **kw):
         super().__init__(filename, **kw)
 
         self.totalPages = None
@@ -16,19 +16,21 @@ class BaseDocTemplate(BaseDocTemplate):
 
         self.style = style
         self.pagesize = style.pagesize
+
         # Margin
         self.topMargin = style.page_margin[0]
         self.rightMargin = style.page_margin[1]
         self.bottomMargin = style.page_margin[2]
         self.leftMargin = style.page_margin[3]
+
         # Padding
         self.topPadding = style.page_padding[0]
         self.rightPadding = style.page_padding[1]
         self.bottomPadding = style.page_padding[2]
         self.leftPadding = style.page_padding[3]
 
-        self._frame_width = self.width - self.leftPadding - self.rightPadding
-        self._frame_height = self.height - self.topPadding - self.bottomPadding
+        self.frameWidth = self.width - self.leftPadding - self.rightPadding
+        self.frameHeight = self.height - self.topPadding - self.bottomPadding
 
     # Override multiBuild method to make one additional pass to support
     # total_pages.
@@ -108,7 +110,7 @@ class BaseDocTemplate(BaseDocTemplate):
         del self._multiBuildEdits
         return passes
 
-    def afterFlowable(self, flowable: Flowable) -> None:
+    def afterFlowable(self, flowable: Flowable):
         """Overrides the afterFlowable method.
 
         This method is called after a Flowable was added to the document

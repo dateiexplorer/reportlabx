@@ -1,18 +1,13 @@
-from hashlib import sha256
+from hashlib import md5
 
 from reportlab.lib import colors
 from reportlab.lib.sequencer import getSequencer
-from reportlab.lib.styles import ListStyle, ParagraphStyle
+from reportlab.lib.styles import *
 from reportlab.platypus import *
-from reportlab.platypus import (
-    BaseDocTemplate,
-    Flowable,
-    HRFlowable,
-    LIIndenter,
-    Paragraph,
-    Spacer,
-)
 from reportlab.platypus.flowables import _Container, _listWrapOn
+
+# Import for convenience (simple import reportlabx.flowables to get access to
+# all relevant classes).
 from reportlab.platypus.tableofcontents import *
 
 
@@ -161,9 +156,8 @@ class Heading(Paragraph):
             # Put the template and the actual text together
             text = f"<seq template='{template}'/> {text}"
 
-        # Create bookmark name for this heading, based on the unique SHA256
-        # hash algorithm.
-        self._bookmark_name = sha256(str(text).encode()).hexdigest()
+        # Create bookmark name for this heading, based on the unique hash.
+        self._bookmark_name = md5(str(text).encode()).hexdigest()
 
         # Add an anchor to the heading.
         text = f"<a name='{self._bookmark_name}'/>{text}"
@@ -190,7 +184,7 @@ class Heading(Paragraph):
             doc.notify("TOCEntry", entry)
 
         if self._add_to_outline:
-            key = sha256(str(self._bookmark_name + str(doc.page)).encode()).hexdigest()
+            key = md5(str(self._bookmark_name + str(doc.page)).encode()).hexdigest()
             doc.canv.bookmarkPage(key)
             doc.canv.addOutlineEntry(text, key, self._level)
 
@@ -203,8 +197,8 @@ class Signature(GroupFlowable):
     def __init__(
         self,
         name: str,
-        location: str,
-        date: str,
+        location: str = None,
+        date: str = None,
         style: ParagraphStyle = None,
         qualification: str = None,
     ):
@@ -227,7 +221,8 @@ class Signature(GroupFlowable):
         if qualification:
             story.append(Paragraph(qualification, style))
 
-        story.append(Spacer(0, 24))
-        story.append(Paragraph(f"{location}, {date}", style))
+        if location and date:
+            story.append(Spacer(0, 24))
+            story.append(Paragraph(f"{location}, {date}", style))
 
         super().__init__(story)
