@@ -126,6 +126,11 @@ class Heading(Paragraph):
         self._add_to_toc = add_to_toc
         self._add_to_outline = add_to_outline
 
+        # Set the `keepWithNext` to True by default to ensure that the heading
+        # is no orphan or widow on a page (stays on one page while the paragraph
+        # is printed on another, which is usually not wanted for headings).
+        self.keepWithNext = kwargs.get("keepWithNext", True)
+
         # Create dynamic sequencer and chain it together, beginning with "h0"
         # for level=0. This ensures that the numbering is automatically reset
         # if the number of the header one level above increases.
