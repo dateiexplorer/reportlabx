@@ -5,13 +5,13 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "reportlabx"
 version = "0.0.1"
-description = "Library that extends reportlabs capabilities"
+description = "Library that extends reportlabs capabilities."
 readme = "README.md"
 requires-python = ">=3.11"
 license = { file = "LICENSE" }
 authors = [{ name = "Justus Röderer", email = "mail@dateiexplorer.de" }]
 dependencies = [
-    "reportlab >= 4.0.7",
-    "svglib >= 1.5.1",
-    "matplotlib >= 3.8.2",
+    "reportlab ~= 4.0.7",
+    "svglib ~= 1.5.1",
+    "matplotlib ~= 3.8.2",
 ]

@@ -6,13 +6,13 @@ from reportlab.lib.styles import *
 from reportlab.platypus import *
 from reportlab.platypus.flowables import _Container, _listWrapOn
 
-# Import for convenience (simple import reportlabx.flowables to get access to
+# Reimport for convenience (simply import reportlabx.flowables to get access to
 # all relevant classes).
 from reportlab.platypus.tableofcontents import *
 
 
 class GroupFlowable(_Container, Flowable):
-    """A Flowable that groups multiple flowables togehter.
+    """A Flowable that groups multiple flowables together.
 
     This is based on the ListFlowable code, but without the ability to make
     bullet points or enumerations.
@@ -23,14 +23,10 @@ class GroupFlowable(_Container, Flowable):
         flowables: list[Flowable],
         style: ListStyle = None,
         **kwds,
-    ):
+    ) -> None:
         self._flowables = flowables
 
         if style:
-            if not isinstance(style, ListStyle):
-                raise ValueError(
-                    "%s style argument not a ListStyle" % self.__class__.__name__
-                )
             self.style = style
 
         # Use the default ListStyle, but adjust the leftIndent to 0.
@@ -99,7 +95,7 @@ class GroupFlowable(_Container, Flowable):
 
 class Heading(Paragraph):
     """A Heading is a Paragraph that includes the handling of adding it to the
-    TOC or Outline of a PDF file.
+    TOC or outline of a PDF file.
 
     Additionally it automatically provides numbering and nested numbering of
     the headings and takes care of the correct chaining.
@@ -115,16 +111,14 @@ class Heading(Paragraph):
         text: str,
         level: int,
         style: ParagraphStyle = None,
-        numbered=True,
-        add_to_toc=True,
-        add_to_outline=True,
         **kwargs,
-    ):
+    ) -> None:
         self._level = level
-        self._bookmark_name = None
-        self._numbered = numbered
-        self._add_to_toc = add_to_toc
-        self._add_to_outline = add_to_outline
+        self._bookmarkName = None
+
+        self._numbered = kwargs.get("numbered", True)
+        self._addToTOC = kwargs.get("addToTOC", True)
+        self._addToOutline = kwargs.get("addToOutline", True)
 
         # Set the `keepWithNext` to True by default to ensure that the heading
         # is no orphan or widow on a page (stays on one page while the paragraph
@@ -152,7 +146,7 @@ class Heading(Paragraph):
             if i > 0:
                 sequencer.chain(f"h{i-1}", f"h{i}")
 
-        if numbered:
+        if self._numbered:
             # Generate a template of the form '%(h1)s.%(h2+)s'.
             template = ".".join(
                 [f"%(h{i}{'+' if i == level else ''})s" for i in range(0, level + 1)]
@@ -162,12 +156,12 @@ class Heading(Paragraph):
             text = f"<seq template='{template}'/> {text}"
 
         # Create bookmark name for this heading, based on the unique hash.
-        self._bookmark_name = md5(str(text).encode()).hexdigest()
+        self._bookmarkName = md5(str(text).encode()).hexdigest()
 
         # Add an anchor to the heading.
-        text = f"<a name='{self._bookmark_name}'/>{text}"
+        text = f"<a name='{self._bookmarkName}'/>{text}"
 
-        super().__init__(text, style, kwargs)
+        super().__init__(text, style)
 
     # This code is based on https://www.reportlab.com/snippets/13/.
     #
@@ -180,16 +174,16 @@ class Heading(Paragraph):
     # This list will usually be created in a document template's method like
     # afterFlowable(), making notifiaction calls using the notify() method
     # with appropriate data.
-    def handle_afterFlowable(self, doc: BaseDocTemplate):
+    def handle_afterFlowable(self, doc: BaseDocTemplate) -> None:
         # Register TOC entries.
         text = self.getPlainText()
 
-        if self._add_to_toc:
-            entry = (self._level, text, doc.page, self._bookmark_name)
+        if self._addToTOC:
+            entry = (self._level, text, doc.page, self._bookmarkName)
             doc.notify("TOCEntry", entry)
 
-        if self._add_to_outline:
-            key = md5(str(self._bookmark_name + str(doc.page)).encode()).hexdigest()
+        if self._addToOutline:
+            key = md5(str(self._bookmarkName + str(doc.page)).encode()).hexdigest()
             doc.canv.bookmarkPage(key)
             doc.canv.addOutlineEntry(text, key, self._level)
 
@@ -206,7 +200,7 @@ class Signature(GroupFlowable):
         date: str = None,
         style: ParagraphStyle = None,
         qualification: str = None,
-    ):
+    ) -> None:
         story: list[Flowable] = []
 
         # Add a horizontal line with enough space before it.

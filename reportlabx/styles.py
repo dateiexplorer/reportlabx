@@ -9,9 +9,9 @@ class StyleSheet(StyleSheet1):
     Use this StyleSheet to apply a general style for all reports.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
 
         self.pagesize = pagesizes.A4
-        self.page_margin = (3.0 * cm, 2.5 * cm, 2.5 * cm, 2.5 * cm)
-        self.page_padding = (6, 6, 6, 6)
+        self.pageMargin = (3.0 * cm, 2.5 * cm, 2.5 * cm, 2.5 * cm)
+        self.pagePadding = (6, 6, 6, 6)

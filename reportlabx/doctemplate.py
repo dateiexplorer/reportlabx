@@ -1,39 +1,38 @@
 from reportlab.lib.sequencer import Sequencer, setSequencer
 from reportlab.platypus import BaseDocTemplate, Flowable
 
-from reportlabx.flowables import Heading
 from reportlabx.styles import StyleSheet
 
 
 class BaseDocTemplate(BaseDocTemplate):
     """Base template for all reports with additional features."""
 
-    def __init__(self, filename, style: StyleSheet, **kw):
+    def __init__(self, filename, **kw) -> None:
         super().__init__(filename, **kw)
 
-        self.totalPages = None
+        self.totalPages: int = None
         self.showBoundary = kw.get("showBoundary", False)
 
-        self.style = style
-        self.pagesize = style.pagesize
+        self.style: StyleSheet = kw.get("style", StyleSheet())
+        self.pagesize = self.style.pagesize
 
         # Margin
-        self.topMargin = style.page_margin[0]
-        self.rightMargin = style.page_margin[1]
-        self.bottomMargin = style.page_margin[2]
-        self.leftMargin = style.page_margin[3]
+        self.topMargin = self.style.pageMargin[0]
+        self.rightMargin = self.style.pageMargin[1]
+        self.bottomMargin = self.style.pageMargin[2]
+        self.leftMargin = self.style.pageMargin[3]
 
         # Padding
-        self.topPadding = style.page_padding[0]
-        self.rightPadding = style.page_padding[1]
-        self.bottomPadding = style.page_padding[2]
-        self.leftPadding = style.page_padding[3]
+        self.topPadding = self.style.pagePadding[0]
+        self.rightPadding = self.style.pagePadding[1]
+        self.bottomPadding = self.style.pagePadding[2]
+        self.leftPadding = self.style.pagePadding[3]
 
         self.frameWidth = self.width - self.leftPadding - self.rightPadding
         self.frameHeight = self.height - self.topPadding - self.bottomPadding
 
     # Override multiBuild method to make one additional pass to support
-    # total_pages.
+    # total pages.
     # This is a workaround, because either anchors or the canvasmaker
     # function can be used, but not both at the same time.
     # During the build process the toal page numbers of the PDF is not
@@ -94,7 +93,7 @@ class BaseDocTemplate(BaseDocTemplate):
                 self.canv.save()
                 break
             # If all cross-references are solved, do one additional run
-            # setting the total_pages attribute.
+            # setting the totalPages attribute.
             if happy:
                 self.totalPages = self.page
             if passes > maxPasses:
@@ -110,14 +109,18 @@ class BaseDocTemplate(BaseDocTemplate):
         del self._multiBuildEdits
         return passes
 
-    def afterFlowable(self, flowable: Flowable):
+    def afterFlowable(self, flowable: Flowable) -> None:
         """Overrides the afterFlowable method.
 
         This method is called after a Flowable was added to the document
-        do do further modification, like adding new TOC entries.
+        to do further modifications.
         """
 
         super().afterFlowable(flowable)
 
-        if isinstance(flowable, Heading):
-            flowable.handle_afterFlowable(self)
+        # Check if the flowable object registers a handler function and execute
+        # it.
+        if hasattr(flowable, "handle_afterFlowable"):
+            method = getattr(flowable, "handle_afterFlowable")
+            if callable(method):
+                method(self)
