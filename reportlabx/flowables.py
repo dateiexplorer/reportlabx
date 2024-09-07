@@ -114,11 +114,11 @@ class Heading(Paragraph):
         **kwargs,
     ) -> None:
         self._level = level
-        self._bookmarkName = None
+        self._bookmark_name = None
 
         self._numbered = kwargs.get("numbered", True)
-        self._addToTOC = kwargs.get("addToTOC", True)
-        self._addToOutline = kwargs.get("addToOutline", True)
+        self._add_to_toc = kwargs.get("add_to_toc", True)
+        self._add_to_outline = kwargs.get("add_to_outline", True)
 
         # Set the `keepWithNext` to True by default to ensure that the heading
         # is no orphan or widow on a page (stays on one page while the paragraph
@@ -156,10 +156,10 @@ class Heading(Paragraph):
             text = f"<seq template='{template}'/> {text}"
 
         # Create bookmark name for this heading, based on the unique hash.
-        self._bookmarkName = md5(str(text).encode()).hexdigest()
+        self._bookmark_name = md5(str(text).encode()).hexdigest()
 
         # Add an anchor to the heading.
-        text = f"<a name='{self._bookmarkName}'/>{text}"
+        text = f"<a name='{self._bookmark_name}'/>{text}"
 
         super().__init__(text, style)
 
@@ -178,12 +178,12 @@ class Heading(Paragraph):
         # Register TOC entries.
         text = self.getPlainText()
 
-        if self._addToTOC:
-            entry = (self._level, text, doc.page, self._bookmarkName)
+        if self._add_to_toc:
+            entry = (self._level, text, doc.page, self._bookmark_name)
             doc.notify("TOCEntry", entry)
 
-        if self._addToOutline:
-            key = md5(str(self._bookmarkName + str(doc.page)).encode()).hexdigest()
+        if self._add_to_outline:
+            key = md5(str(self._bookmark_name + str(doc.page)).encode()).hexdigest()
             doc.canv.bookmarkPage(key)
             doc.canv.addOutlineEntry(text, key, self._level)
 

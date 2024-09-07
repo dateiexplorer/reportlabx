@@ -1,3 +1,3 @@
-# reportlabx
+# ReportLabX 
 
-Library that extends reportlabs capabilities.
+Library that extends ReportLabs capabilities.

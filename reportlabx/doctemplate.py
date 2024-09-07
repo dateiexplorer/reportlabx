@@ -10,26 +10,26 @@ class BaseDocTemplate(BaseDocTemplate):
     def __init__(self, filename, **kw) -> None:
         super().__init__(filename, **kw)
 
-        self.totalPages: int = None
+        self.total_pages: int = None
         self.showBoundary = kw.get("showBoundary", False)
 
         self.style: StyleSheet = kw.get("style", StyleSheet())
         self.pagesize = self.style.pagesize
 
         # Margin
-        self.topMargin = self.style.pageMargin[0]
-        self.rightMargin = self.style.pageMargin[1]
-        self.bottomMargin = self.style.pageMargin[2]
-        self.leftMargin = self.style.pageMargin[3]
+        self.topMargin = self.style.page_margin[0]
+        self.rightMargin = self.style.page_margin[1]
+        self.bottomMargin = self.style.page_margin[2]
+        self.leftMargin = self.style.page_margin[3]
 
         # Padding
-        self.topPadding = self.style.pagePadding[0]
-        self.rightPadding = self.style.pagePadding[1]
-        self.bottomPadding = self.style.pagePadding[2]
-        self.leftPadding = self.style.pagePadding[3]
+        self.top_padding = self.style.page_padding[0]
+        self.right_padding = self.style.page_padding[1]
+        self.bottom_padding = self.style.page_padding[2]
+        self.left_padding = self.style.page_padding[3]
 
-        self.frameWidth = self.width - self.leftPadding - self.rightPadding
-        self.frameHeight = self.height - self.topPadding - self.bottomPadding
+        self.frame_width = self.width - self.left_padding - self.right_padding
+        self.frame_height = self.height - self.top_padding - self.bottom_padding
 
     # Override multiBuild method to make one additional pass to support
     # total pages.
@@ -45,7 +45,7 @@ class BaseDocTemplate(BaseDocTemplate):
     def multiBuild(
         self,
         story: list[Flowable],
-        maxPasses: int = 10,
+        max_passes: int = 10,
         **buildKwds,
     ) -> int:
         """Makes multiple passes until all indexing flowables are happy.
@@ -88,17 +88,17 @@ class BaseDocTemplate(BaseDocTemplate):
 
             happy = self._allSatisfied()
 
-            if happy and self.totalPages is not None:
+            if happy and self.total_pages is not None:
                 self._doSave = 0
                 self.canv.save()
                 break
             # If all cross-references are solved, do one additional run
             # setting the totalPages attribute.
             if happy:
-                self.totalPages = self.page
-            if passes > maxPasses:
+                self.total_pages = self.page
+            if passes > max_passes:
                 raise IndexError(
-                    "Index entries not resolved after %d passes" % maxPasses
+                    "Index entries not resolved after %d passes" % max_passes
                 )
 
             # Work through any edits.
